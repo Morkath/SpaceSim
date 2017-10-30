@@ -1,0 +1,390 @@
+﻿<Window x:Class="SpaceSim.BattleStatus"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:SpaceSim="clr-namespace:SpaceSim"
+		Title="Navigation and Flight Control" Height="370" Width="830" 
+		WindowStyle="None"
+		WindowStartupLocation="Manual"
+		ResizeMode="NoResize"
+		ShowInTaskbar="False">
+
+	<Window.Resources>
+		<Style x:Key="deployButtonStyle" TargetType="{x:Type Button}">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Height" Value="75"/>
+			<Setter Property="Width" Value="75"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type Button}">
+						<Border Background="{TemplateBinding Background}">
+							<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Focusable="False"/>
+						</Border>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+			<Style.Triggers>
+				<Trigger Property="IsMouseOver" Value="True">
+					<Setter Property="Opacity" Value="0.8" />
+				</Trigger>
+				<Trigger Property="IsPressed" Value="True">
+					<Setter Property="Opacity" Value="0.2" />
+				</Trigger>
+			</Style.Triggers>
+		</Style>
+		<Style x:Key="deployablePBStyle" TargetType="{x:Type ProgressBar}">
+			<Setter Property="Height" Value="75"/>
+			<Setter Property="Width" Value="20"/>
+			<Setter Property="Orientation" Value="Vertical"/>
+		</Style>
+		<Style x:Key="deployImageStyle" TargetType="{x:Type Image}">
+			<Setter Property="Height" Value="75"/>
+			<Setter Property="Width" Value="75"/>
+		</Style>
+		<Style x:Key="actionButtonStyle" TargetType="{x:Type Button}">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type Button}">
+						<Border Background="{TemplateBinding Background}">
+							<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Focusable="False"/>
+						</Border>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+			<Style.Triggers>
+				<Trigger Property="IsMouseOver" Value="True">
+					<Setter Property="Opacity" Value="0.8" />
+				</Trigger>
+				<Trigger Property="IsPressed" Value="True">
+					<Setter Property="Opacity" Value="0.4" />
+				</Trigger>
+				<Trigger Property="IsEnabled" Value="False">
+					<Setter Property="Opacity" Value="0.1" />
+				</Trigger>
+			</Style.Triggers>
+		</Style>
+		<Style x:Key="{x:Type ToolTip}" TargetType="ToolTip">
+			<Setter Property="OverridesDefaultStyle" Value="true" />
+			<Setter Property="HasDropShadow" Value="True" />
+			<Setter Property="Placement" Value="Bottom" />
+			<Setter Property="VerticalOffset" Value="0" />
+			<Setter Property="Padding" Value="8" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="ToolTip">
+						<StackPanel Margin="7,1" >
+							<Border Background="#4F4F4F" CornerRadius="1" >
+								<TextBlock Margin="2" Padding="5" Foreground="#4F4F4F" Background="#A2A2A2" HorizontalAlignment="Center" VerticalAlignment="Top" Text="{TemplateBinding Content}" />
+							</Border>
+						</StackPanel>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+		<Style x:Key="recallItemStyle" TargetType="{x:Type MenuItem}">
+			<Setter Property="Background" Value="Orange"/>
+			<Setter Property="Foreground" Value="White"/>
+		</Style>
+	</Window.Resources>
+	
+	<Grid>
+		<Grid.Background>
+			<ImageBrush ImageSource="/Data\ui\consoleBackground.png"/>
+		</Grid.Background>
+
+		<StackPanel Margin="10,10,10,10">
+			<!-- User Ship -->
+			<StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+				<Grid>
+					<Image x:Name="userShipImgBackground" Height="190" Width="300" Stretch="fill" Source="{Binding ShipSpaceBackground}" />
+					<Image x:Name="userShipImg" Height="190" Width="305" Stretch="fill" Source="{Binding MainWindow.userShip.Image}" />
+				</Grid>
+			
+				<ProgressBar x:Name="userHealthBar" Height="190" Width="20" Foreground="Red" Orientation="Vertical" />
+				<ProgressBar x:Name="userShieldBar" Height="190" Width="20" Foreground="Blue" Orientation="Vertical" />
+			</StackPanel>
+
+			<!-- User Deployables -->
+			<StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+				<!-- User Deployable1 -->
+				<Grid>
+					<Button x:Name="userDeployedBttn0" Style="{StaticResource deployButtonStyle}" Click="userDeployedBttn0_Click" ToolTip="Deploy Unit">
+						<Button.ContextMenu>
+							<ContextMenu>
+								<MenuItem Style="{StaticResource recallItemStyle}" Header="Recall Unit" Click="userRecallBttn0_Click"/>
+							</ContextMenu>
+						</Button.ContextMenu>
+						<Grid>
+							<Image x:Name="userDeployedBackImg0" Style="{StaticResource deployImageStyle}" Source="{Binding spaceBackDeployable}" />
+							<Image x:Name="userDeployedImg0" Style="{StaticResource deployImageStyle}" Source="{Binding transparentDeployableOverlay}" />
+							<Image x:Name="userDeployedActionImg0" Style="{StaticResource deployImageStyle}" Source="{Binding transparentDeployableOverlay}" />
+						</Grid>
+					</Button>
+					<Menu x:Name="userDeployableMenu0" Height="75" Width="75" Background="{x:Null}">
+						<MenuItem x:Name="userDeployableAttackCmd0" Click="userDeployed0Attack_Click">
+							<MenuItem.ToolTip>
+								<ToolTip>
+									Attack Enemy Ship
+								</ToolTip>
+							</MenuItem.ToolTip>
+							<MenuItem.Header>
+								<Grid>
+									<Image Height="20" Width="100" Source="/data\ui\deployables\attackCommand.png"/>
+								</Grid>
+							</MenuItem.Header>
+						</MenuItem>
+						<MenuItem x:Name="userDeployableInterceptCmd0" Click="userDeployed0Intercept_Click">
+							<MenuItem.ToolTip>
+								<ToolTip>
+									Attack Enemy Deployables
+								</ToolTip>
+							</MenuItem.ToolTip>
+							<MenuItem.Header>
+								<Grid>
+									<Image Height="20" Width="100" Source="/data\ui\deployables\interceptCommand.png"/>
+								</Grid>
+							</MenuItem.Header>
+						</MenuItem>
+						<MenuItem x:Name="userDeployableDefendCmd0" Click="userDeployed0Defend_Click">
+							<MenuItem.ToolTip>
+								<ToolTip>
+									Defend Friendly Ship
+								</ToolTip>
+							</MenuItem.ToolTip>
+							<MenuItem.Header>
+								<Grid>
+									<Image Height="20" Width="100" Source="/data\ui\deployables\defendCommand.png"/>
+								</Grid>
+							</MenuItem.Header>
+						</MenuItem>
+					</Menu>
+				</Grid>
+				<ProgressBar x:Name="userDeployedHealthBar0" Style="{StaticResource deployablePBStyle}" Foreground="Red" />
+				<ProgressBar x:Name="userDeployedShieldBar0" Style="{StaticResource deployablePBStyle}" Foreground="Blue" />	
+
+				<!-- User Deployable2 -->
+				<Grid>
+					<Button x:Name="userDeployedBttn1" Style="{StaticResource deployButtonStyle}" Click="userDeployedBttn1_Click" ToolTip="Deploy Unit">
+						<Button.ContextMenu>
+							<ContextMenu>
+								<MenuItem Style="{StaticResource recallItemStyle}" Header="Recall Unit" Click="userRecallBttn1_Click"/>
+							</ContextMenu>
+						</Button.ContextMenu>
+						<Grid>
+							<Image x:Name="userDeployedBackImg1" Source="{Binding spaceBackDeployable}" />
+							<Image x:Name="userDeployedImg1" Source="{Binding transparentDeployableOverlay}" />
+							<Image x:Name="userDeployedActionImg1" Source="{Binding transparentDeployableOverlay}" />
+						</Grid>
+					</Button>
+					<Menu x:Name="userDeployableMenu1" Height="75" Width="75" Background="{x:Null}" >
+						<MenuItem x:Name="userDeployableAttackCmd1" Click="userDeployed1Attack_Click">
+							<MenuItem.ToolTip>
+								<ToolTip>
+									Attack Enemy Ship
+								</ToolTip>
+							</MenuItem.ToolTip>
+							<MenuItem.Header>
+								<Grid>
+									<Image Height="20" Width="100" Source="/data\ui\deployables\attackCommand.png"/>
+								</Grid>
+							</MenuItem.Header>
+						</MenuItem>
+						<MenuItem x:Name="userDeployableInterceptCmd1" Click="userDeployed1Intercept_Click">
+							<MenuItem.ToolTip>
+								<ToolTip>
+									Attack Enemy Deployables
+								</ToolTip>
+							</MenuItem.ToolTip>
+							<MenuItem.Header>
+								<Grid>
+									<Image Height="20" Width="100" Source="/data\ui\deployables\interceptCommand.png"/>
+								</Grid>
+							</MenuItem.Header>
+						</MenuItem>
+						<MenuItem x:Name="userDeployableDefendCmd1" Click="userDeployed1Defend_Click">
+							<MenuItem.ToolTip>
+								<ToolTip>
+									Defend Friendly Ship
+								</ToolTip>
+							</MenuItem.ToolTip>
+							<MenuItem.Header>
+								<Grid>
+									<Image Height="20" Width="100" Source="/data\ui\deployables\defendCommand.png"/>
+								</Grid>
+							</MenuItem.Header>
+						</MenuItem>
+					</Menu>
+				</Grid>
+				<ProgressBar x:Name="userDeployedHealthBar1" Style="{StaticResource deployablePBStyle}" Foreground="Red" />
+				<ProgressBar x:Name="userDeployedShieldBar1" Style="{StaticResource deployablePBStyle}" Foreground="Blue" />
+
+				<!-- User Deployable3 -->
+				<Grid>
+					<Button x:Name="userDeployedBttn2" Style="{StaticResource deployButtonStyle}" Click="userDeployedBttn2_Click" ToolTip="Deploy Unit">
+						<Button.ContextMenu>
+							<ContextMenu>
+								<MenuItem Style="{StaticResource recallItemStyle}" Header="Recall Unit" Click="userRecallBttn2_Click"/>
+							</ContextMenu>
+						</Button.ContextMenu>
+						<Grid>
+							<Image x:Name="userDeployedBackImg2" Source="{Binding spaceBackDeployable}" />
+							<Image x:Name="userDeployedImg2" Source="{Binding transparentDeployableOverlay}" />
+							<Image x:Name="userDeployedActionImg2" Source="{Binding transparentDeployableOverlay}" />
+						</Grid>
+					</Button>
+					<Menu x:Name="userDeployableMenu2" Height="75" Width="75" Background="{x:Null}" >
+						<MenuItem x:Name="userDeployableAttackCmd2" Click="userDeployed2Attack_Click">
+							<MenuItem.ToolTip>
+								<ToolTip>
+									Attack Enemy Ship
+								</ToolTip>
+							</MenuItem.ToolTip>
+							<MenuItem.Header>
+								<Grid>
+									<Image Height="20" Width="100" Source="/data\ui\deployables\attackCommand.png"/>
+								</Grid>
+							</MenuItem.Header>
+						</MenuItem>
+						<MenuItem x:Name="userDeployableInterceptCmd2" Click="userDeployed2Intercept_Click">
+							<MenuItem.ToolTip>
+								<ToolTip>
+									Attack Enemy Deployables
+								</ToolTip>
+							</MenuItem.ToolTip>
+							<MenuItem.Header>
+								<Grid>
+									<Image Height="20" Width="100" Source="/data\ui\deployables\interceptCommand.png"/>
+								</Grid>
+							</MenuItem.Header>
+						</MenuItem>
+						<MenuItem x:Name="userDeployableDefendCmd2" Click="userDeployed2Defend_Click">
+							<MenuItem.ToolTip>
+								<ToolTip>
+									Defend Friendly Ship
+								</ToolTip>
+							</MenuItem.ToolTip>
+							<MenuItem.Header>
+								<Grid>
+									<Image Height="20" Width="100" Source="/data\ui\deployables\defendCommand.png"/>
+								</Grid>
+							</MenuItem.Header>
+						</MenuItem>
+					</Menu>
+				</Grid>
+				<ProgressBar x:Name="userDeployedHealthBar2" Style="{StaticResource deployablePBStyle}" Foreground="Red" />
+				<ProgressBar x:Name="userDeployedShieldBar2" Style="{StaticResource deployablePBStyle}" Foreground="Blue" />
+			</StackPanel>
+		</StackPanel>
+
+		<StackPanel VerticalAlignment="Top" Margin="0,10,0,0">
+			<Button x:Name="engageBttn" Width="100" Height="100" Style="{StaticResource actionButtonStyle}" Click="engageBttn_Click">
+				<Button.Content>
+					<Image Source="/data\ui\engageBttn.png"/>
+				</Button.Content>
+			</Button>
+			<Button x:Name="retreatBttn" Width="100" Height="50" Style="{StaticResource actionButtonStyle}" Click="retreatBttn_Click">
+				<Button.Content>
+					<Image Source="/data\ui\retreatBttn.png"/>
+				</Button.Content>
+			</Button>
+		</StackPanel>
+		
+		<StackPanel Margin="10,10,10,10">
+			<!-- Enemy Ship -->
+			<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+				<ProgressBar x:Name="enemyShieldBar" Height="190" Width="20" Foreground="Blue" Orientation="Vertical" />
+				<ProgressBar x:Name="enemyHealthBar" Height="190" Width="20" Foreground="Red" Orientation="Vertical" />
+			
+				<Grid>
+					<Image x:Name="enemyShipImgBackground" Height="190" Width="300" Stretch="fill" Source="{Binding ShipSpaceBackground}" />
+					<Image x:Name="enemyShipImg" Height="190" Width="305" Stretch="fill" Source="{Binding MainWindow.enemyShip.Image}" />
+				</Grid>
+			</StackPanel>
+		
+			<!-- Enemy Deployables -->
+			<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+				<!-- Enemy Deployable1 -->
+				<ProgressBar x:Name="enemyDeployedShieldBar0" Style="{StaticResource deployablePBStyle}" Foreground="Blue" />
+				<ProgressBar x:Name="enemyDeployedHealthBar0" Style="{StaticResource deployablePBStyle}" Foreground="Red" />
+				<Grid>
+					<Image x:Name="enemyDeployedBackImg0" Style="{StaticResource deployImageStyle}" Source="{Binding spaceBackDeployable}" />
+					<Image x:Name="enemyDeployedImg0" Style="{StaticResource deployImageStyle}" Source="{Binding transparentDeployableOverlay}" />
+					<Image x:Name="enemyDeployedActionImg0" Style="{StaticResource deployImageStyle}" Source="{Binding transparentDeployableOverlay}" />
+				</Grid>
+				<!-- Enemy Deployable2 -->
+				<ProgressBar x:Name="enemyDeployedShieldBar1" Style="{StaticResource deployablePBStyle}" Foreground="Blue" />
+				<ProgressBar x:Name="enemyDeployedHealthBar1" Style="{StaticResource deployablePBStyle}" Foreground="Red" />
+				<Grid>
+					<Image x:Name="enemyDeployedBackImg1" Style="{StaticResource deployImageStyle}" Source="{Binding spaceBackDeployable}" />
+					<Image x:Name="enemyDeployedImg1" Style="{StaticResource deployImageStyle}" Source="{Binding transparentDeployableOverlay}" />
+					<Image x:Name="enemyDeployedActionImg1" Style="{StaticResource deployImageStyle}" Source="{Binding transparentDeployableOverlay}" />
+				</Grid>
+				<!-- Enemy Deployable3 -->
+				<ProgressBar x:Name="enemyDeployedShieldBar2" Style="{StaticResource deployablePBStyle}" Foreground="Blue" />
+				<ProgressBar x:Name="enemyDeployedHealthBar2" Style="{StaticResource deployablePBStyle}" Foreground="Red" />
+				<Grid>
+					<Image x:Name="enemyDeployedBackImg2" Style="{StaticResource deployImageStyle}" Source="{Binding spaceBackDeployable}" />
+					<Image x:Name="enemyDeployedImg2" Style="{StaticResource deployImageStyle}" Source="{Binding transparentDeployableOverlay}" />
+					<Image x:Name="enemyDeployedActionImg2" Style="{StaticResource deployImageStyle}" Source="{Binding transparentDeployableOverlay}" />
+				</Grid>
+			</StackPanel>
+		</StackPanel>
+		
+		<!-- User Ship Marines -->
+		<StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10,10,10,10">
+			<Grid>
+				<Image x:Name="userMarineFriendlyBackground" Height="75" Width="200" />
+				<StackPanel Orientation="Horizontal" Margin="5,25,0,0">
+					<Image x:Name="userMarinesFriendly0" Height="30" Source="/data\ui\deployables\marine.png"/>
+					<Image x:Name="userMarinesFriendly1" Height="30" Source="/data\ui\deployables\marine.png"/>
+					<Image x:Name="userMarinesFriendly2" Height="30" Source="/data\ui\deployables\marine.png"/>
+				</StackPanel>
+			</Grid>
+			<Grid>
+				<Image x:Name="enemyMarineFriendlyBackground" Height="75" Width="200" />
+				<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,25,5,0">
+					<Image x:Name="enemyMarinesFriendly3" Height="30" Source="/data\ui\deployables\marine.png"/>
+					<Image x:Name="enemyMarinesFriendly2" Height="30" Source="/data\ui\deployables\marine.png"/>
+					<Image x:Name="enemyMarinesFriendly1" Height="30" Source="/data\ui\deployables\marine.png"/>
+					<Image x:Name="enemyMarinesFriendly0" Height="30" Source="/data\ui\deployables\marine.png"/>
+				</StackPanel>
+			</Grid>
+		</StackPanel>
+
+		<!-- Enemy Ship Marines -->
+		<StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="10,10,10,10">
+			<Image x:Name="userMarinesEnemyBackground" Height="75" Width="200" Visibility="Hidden"/>
+			<Image x:Name="enemyMarinesEnemyBackground" Height="75" Width="200" Visibility="Hidden"/>
+		</StackPanel>
+
+		<!-- Deploy Screen -->
+		<StackPanel x:Name="deployUnitPanel" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10,138,0,0" Visibility="Hidden">
+			<ListView x:Name="deployUnitList" Height="200" Width="583" SelectionMode="Single"
+					  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible">
+				<ListView.ItemContainerStyle>
+					<Style TargetType="ListViewItem">
+						<Setter Property="HorizontalContentAlignment" Value="Center"/>
+					</Style>
+				</ListView.ItemContainerStyle>
+				<ListView.View>
+					<GridView>
+						<GridViewColumn Header="Name" Width="100" DisplayMemberBinding="{Binding Name}" />
+						<GridViewColumn Header="Class" Width="100" DisplayMemberBinding="{Binding Class}"/>
+						<GridViewColumn Header="Weapon" Width="100" DisplayMemberBinding="{Binding Weapon}"/>
+						<GridViewColumn Header="Accuracy" Width="60" DisplayMemberBinding="{Binding Accuracy}"/>
+						<GridViewColumn Header="Dmg" Width="50" DisplayMemberBinding="{Binding Dmg}"/>
+						<GridViewColumn Header="Speed" Width="50" DisplayMemberBinding="{Binding Speed}"/>
+						<GridViewColumn Header="Hull" Width="50" DisplayMemberBinding="{Binding HullMax}"/>
+						<GridViewColumn Header="Shield" Width="50" DisplayMemberBinding="{Binding ShieldMax}"/>
+					</GridView>
+				</ListView.View>
+			</ListView>
+			<Grid>
+				<Button x:Name="deployUnitBttn" Content="Deploy" Width="225" Margin="10,0,0,0" HorizontalAlignment="Left" Click="deployUnit_Click" />
+				<Button x:Name="cancelDeployUnitBttn" Content="Cancel" Width="225" Margin="0,0,10,0" HorizontalAlignment="Right" Click="cancelDeployUnit_Click" />
+			</Grid>
+		</StackPanel>
+	</Grid>
+</Window>
